@@ -2,6 +2,7 @@
 import bumpy
 import os
 import sys
+import tempfile
 import time
 
 FMT_DATETIME = '%m/%d/%Y %I:%M%p'
@@ -40,7 +41,7 @@ def show():
 
 	print stream.ideas
 
-@bumpy.task
+@bumpy.default
 def add(*args):
 	'''Add a new Pydea'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
@@ -49,21 +50,18 @@ def add(*args):
 	with open(now + '.pydea.md', 'w+') as temp:
 		datetime = time.strftime(FMT_DATETIME, time.localtime())
 		temp.write('* datetime = {}\n\n'.format(datetime))
-		for arg in args:
-			temp.write(arg + '\n\n')
+		if args:
+			for arg in args:
+				temp.write(arg + '\n\n')
+
+		else:
+			desc, name = tempfile.mkstemp(prefix = 'pydea-', suffix='.md', text = True)
+			os.system('{} "{}"'.format(os.getenv('EDITOR', 'nano'), name))
+
+			with open(name) as arg:
+				temp.write(arg.read().strip())
 
 	print 'Added Pydea ' + now
-
-@bumpy.default
-@bumpy.private
-def default(*args):
-	'''Add items to the Pydea stream or display it'''
-	if not stream.exists: bumpy.abort('Not a Pydea stream')
-
-	if args:
-		add(*args)
-	else:
-		show()
 
 @bumpy.setup
 @bumpy.private
