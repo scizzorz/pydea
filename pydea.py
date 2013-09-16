@@ -61,6 +61,8 @@ class Stream(Meta):
 			if filename == 'meta.md':
 				self.exists = True
 				self._parse(full_path)
+				self.metafile = full_path
+				self.path = path
 				continue
 
 			self.ideas.append(Idea(full_path))
@@ -83,7 +85,9 @@ def init():
 	if stream.exists: bumpy.abort('Already a Pydea stream')
 
 	with open('.pydea', 'w+') as temp:
-		temp.write('* title = Testing\n')
+		temp.write('* title = Untitled\n')
+		temp.write('* tags = none\n')
+
 	print 'Created empty Pydea stream'
 
 @bumpy.task
