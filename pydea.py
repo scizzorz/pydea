@@ -2,6 +2,9 @@
 import bumpy
 import os
 import sys
+import time
+
+FMT_DATETIME = '%m/%d/%Y %I:%M%p'
 
 class Stream:
 	def __init__(self):
@@ -41,6 +44,15 @@ def show():
 def add(*args):
 	'''Add a new Pydea'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
+
+	now = str(int(time.time()))
+	with open(now + '.md', 'w+') as temp:
+		datetime = time.strftime(FMT_DATETIME, time.localtime())
+		temp.write('* datetime = {}\n\n'.format(datetime))
+		for arg in args:
+			temp.write(arg + '\n\n')
+
+	print 'Added Pydea ' + now
 
 @bumpy.default
 @bumpy.private
