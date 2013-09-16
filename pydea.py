@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import bumpy
 import os
+import re
 import sys
 import tempfile
 import time
 
+RE_META = re.compile(r'^\* (\w+)\s*=\s*(.*)$')
 FMT_DATETIME = '%m/%d/%Y %I:%M%p'
 
 class Stream:
@@ -19,11 +21,29 @@ class Stream:
 
 class Idea:
 	def __init__(self, filename):
-		self.name = os.path.splitext(filename)[0]
-		self.source = open(filename).read()
+		self._name = os.path.splitext(filename)[0]
+		self._source = ''
+		self._metas = dict()
+		self._parse(filename)
+
+	def _parse(self, filename):
+		metamode = 'meta'
+		with open(filename) as source:
+			for line in source:
+				if metamode == 'meta':
+					temp = RE_META.match(line)
+					if temp:
+						self._metas[temp.group(1)] = temp.group(2)
+					else:
+						metamode = 'read'
+
+				if metamode == 'read':
+					self._source += line
+
+		self._source = self._source.strip()
 
 	def __repr__(self):
-		return '[Idea: {}]'.format(self.name)
+		return '* {}'.format(self._source)
 
 @bumpy.task
 def init():
@@ -39,7 +59,8 @@ def show():
 	'''View the Pydea stream'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
-	print stream.ideas
+	for idea in stream.ideas:
+		print idea
 
 @bumpy.default
 def add(*args):
