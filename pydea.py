@@ -96,7 +96,7 @@ def init():
 
 	print 'Created empty Pydea stream'
 
-@bumpy.task
+@bumpy.alias('view', 'list')
 def show():
 	'''View the Pydea stream.'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
