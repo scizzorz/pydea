@@ -79,6 +79,12 @@ class Idea(Meta):
 	def __repr__(self):
 		return '* {}'.format(self._source)
 
+@bumpy.setup
+@bumpy.private
+def setup():
+	global stream
+	stream = Stream('.pydea')
+
 @bumpy.task
 def init():
 	'''Initialize a Pydea stream.'''
