@@ -69,7 +69,7 @@ class Stream(Meta):
 		return '# {}\n\n{}'.format(self['title'], '\n'.join(str(x) for x in self.ideas))
 
 class Idea(Meta):
-	'''A container for a single Pydea file and its metadata'''
+	'''A container for a single Pydea file and its metadata.'''
 	def __init__(self, filename):
 		self._name = os.path.splitext(filename)[0]
 		self._parse(filename)
@@ -79,7 +79,7 @@ class Idea(Meta):
 
 @bumpy.task
 def init():
-	'''Initialize a Pydea stream'''
+	'''Initialize a Pydea stream.'''
 	if stream.exists: bumpy.abort('Already a Pydea stream')
 
 	with open('.pydea', 'w+') as temp:
@@ -88,14 +88,14 @@ def init():
 
 @bumpy.task
 def show():
-	'''View the Pydea stream'''
+	'''View the Pydea stream.'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
 	print stream
 
 @bumpy.default
 def add(*args):
-	'''Add a new Pydea'''
+	'''Add a new Pydea.'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
 	now = str(int(time.time()))
