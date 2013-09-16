@@ -109,31 +109,27 @@ def add(*args):
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
 	now = str(int(time.time()))
-	with open(now + '.pydea.md', 'w+') as temp:
-		datetime = time.strftime(FMT_DATETIME, time.localtime())
+	datetime = time.strftime(FMT_DATETIME, time.localtime())
+	full_path = os.path.join(stream.path, now + '.md')
+
+	if args: # has arguments
+		contents = '\n\n'.join(args).strip()
+
+	else: # no arguments, open EDITOR
+		desc, name = tempfile.mkstemp(suffix='.md', text = True)
+		os.system('{} "{}"'.format(EDITOR, name))
+
+		with open(name) as arg:
+			contents = arg.read().strip()
+
+	with open(full_path, 'w+') as temp:
 		temp.write('* datetime = {}\n\n'.format(datetime))
-		if args:
-			for arg in args:
-				temp.write(arg + '\n\n')
-
+		if contents:
+			temp.write(contents)
+			print 'Added Pydea ' + now
 		else:
-			desc, name = tempfile.mkstemp(suffix='.md', text = True)
-			os.system('{} "{}"'.format(EDITOR, name))
+			bumpy.abort('Pydea contents were empty')
 
-			with open(name) as arg:
-				contents = arg.read().strip()
-				temp.write(arg.read().strip())
-
-				if contents:
-					print 'Added Pydea ' + now
-				else:
-					bumpy.abort('Pydea file was empty')
-
-@bumpy.setup
-@bumpy.private
-def setup():
-	global stream
-	stream = Stream('.pydea')
 
 if __name__ == '__main__':
 	suppress = [key for key in bumpy.LOCALE if not key.startswith('abort')]
