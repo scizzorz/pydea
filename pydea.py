@@ -8,24 +8,13 @@ import time
 
 RE_META = re.compile(r'^\* (\w+)\s*=\s*(.*)$')
 FMT_DATETIME = '%m/%d/%Y %I:%M%p'
+EDITOR = os.getenv('EDITOR', 'nano')
 
-class Stream:
-	def __init__(self):
-		if not os.path.exists('.pydea'):
-			self.exists = False
-			return
-
-		self.exists = True
-		self.ideas = [Idea(f) for f in sorted(os.listdir('.'))
-			if f.endswith('.pydea.md')]
-
-class Idea:
-	def __init__(self, filename):
-		self._name = os.path.splitext(filename)[0]
-		self._source = ''
-		self._metas = dict()
-		self._parse(filename)
-
+class Meta:
+	'''An interface for loading a file and processing metadata encoded in a
+	   Markdown list at the top of the file.'''
+	_metas = {}
+	_source = ''
 	def _parse(self, filename):
 		metamode = 'meta'
 		with open(filename) as source:
@@ -33,7 +22,7 @@ class Idea:
 				if metamode == 'meta':
 					temp = RE_META.match(line)
 					if temp:
-						self._metas[temp.group(1)] = temp.group(2)
+						self[temp.group(1)] = temp.group(2)
 					else:
 						metamode = 'read'
 
@@ -41,6 +30,49 @@ class Idea:
 					self._source += line
 
 		self._source = self._source.strip()
+
+	def __len__(self):
+		return len(self._metas)
+
+	def __getitem__(self, key):
+		return self._metas[key]
+
+	def __setitem__(self, key, value):
+		self._metas[key] = value
+
+	def __delitem__(self, key):
+		del self._metas[key]
+
+	def __contains__(self, item):
+		return item in self._metas
+
+class Stream(Meta):
+	'''A container for general metadata about a Pydea stream as well as a list of
+	   Pydea files in the stream.'''
+	exists = False
+	ideas = []
+	def __init__(self, path):
+		if not os.path.exists(path):
+			return
+
+		for filename in sorted(os.listdir(path)):
+			full_path = os.path.join(path, filename)
+
+			if filename == 'meta.md':
+				self.exists = True
+				self._parse(full_path)
+				continue
+
+			self.ideas.append(Idea(full_path))
+
+	def __repr__(self):
+		return '# {}\n\n{}'.format(self['title'], '\n'.join(str(x) for x in self.ideas))
+
+class Idea(Meta):
+	'''A container for a single Pydea file and its metadata'''
+	def __init__(self, filename):
+		self._name = os.path.splitext(filename)[0]
+		self._parse(filename)
 
 	def __repr__(self):
 		return '* {}'.format(self._source)
@@ -59,8 +91,7 @@ def show():
 	'''View the Pydea stream'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
-	for idea in stream.ideas:
-		print idea
+	print stream
 
 @bumpy.default
 def add(*args):
@@ -76,19 +107,23 @@ def add(*args):
 				temp.write(arg + '\n\n')
 
 		else:
-			desc, name = tempfile.mkstemp(prefix = 'pydea-', suffix='.md', text = True)
-			os.system('{} "{}"'.format(os.getenv('EDITOR', 'nano'), name))
+			desc, name = tempfile.mkstemp(suffix='.md', text = True)
+			os.system('{} "{}"'.format(EDITOR, name))
 
 			with open(name) as arg:
+				contents = arg.read().strip()
 				temp.write(arg.read().strip())
 
-	print 'Added Pydea ' + now
+				if contents:
+					print 'Added Pydea ' + now
+				else:
+					bumpy.abort('Pydea file was empty')
 
 @bumpy.setup
 @bumpy.private
 def setup():
 	global stream
-	stream = Stream()
+	stream = Stream('.pydea')
 
 if __name__ == '__main__':
 	suppress = [key for key in bumpy.LOCALE if not key.startswith('abort')]
