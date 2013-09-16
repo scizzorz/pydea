@@ -14,7 +14,7 @@ class Stream:
 
 		self.exists = True
 		self.ideas = [Idea(f) for f in sorted(os.listdir('.'))
-			if os.path.splitext(f)[1] == '.md']
+			if f.endswith('.pydea.md')]
 
 class Idea:
 	def __init__(self, filename):
@@ -46,7 +46,7 @@ def add(*args):
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
 
 	now = str(int(time.time()))
-	with open(now + '.md', 'w+') as temp:
+	with open(now + '.pydea.md', 'w+') as temp:
 		datetime = time.strftime(FMT_DATETIME, time.localtime())
 		temp.write('* datetime = {}\n\n'.format(datetime))
 		for arg in args:
