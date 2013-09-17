@@ -52,7 +52,10 @@ class Stream(Meta):
 	exists = False
 	ideas = []
 	def __init__(self, path):
+		self.path = path
 		if not os.path.exists(path):
+			return
+		if not os.path.isdir(path):
 			return
 
 		for filename in sorted(os.listdir(path)):
@@ -62,7 +65,6 @@ class Stream(Meta):
 				self.exists = True
 				self._parse(full_path)
 				self.metafile = full_path
-				self.path = path
 				continue
 
 			self.ideas.append(Idea(full_path))
@@ -86,13 +88,16 @@ def setup():
 	stream = Stream('.pydea')
 
 @bumpy.task
-def init():
+def init(title = 'Untitled', tags = 'none'):
 	'''Initialize a Pydea stream.'''
 	if stream.exists: bumpy.abort('Already a Pydea stream')
 
-	with open('.pydea', 'w+') as temp:
-		temp.write('* title = Untitled\n')
-		temp.write('* tags = none\n')
+	if not os.path.exists(stream.path):
+		os.makedirs(stream.path)
+
+	with open(os.path.join(stream.path, 'meta.md'), 'w+') as temp:
+		temp.write('* title = {}\n'.format(title))
+		temp.write('* tags = {}\n'.format(tags))
 
 	print 'Created empty Pydea stream'
 

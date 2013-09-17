@@ -5,9 +5,10 @@
 ## Usage
 
 ```bash
-$ pydea init # create a new Pydea stream
+$ pydea init [--title "Testing Pydea"][--tags "learning help"] # create a new Pydea stream
 $ pydea edit # open $EDITOR to update the Pydea metadata
 $ pydea add # open $EDITOR to record a new idea
+$ pydea add "This is an idea." # record a new idea
 $ pydea view # view recorded thoughts
 ```
 
