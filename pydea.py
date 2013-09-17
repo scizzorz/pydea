@@ -103,6 +103,12 @@ def show():
 
 	print stream
 
+@bumpy.task
+def edit():
+	'''Edit the Pydea metadata.'''
+	if not stream.exists: bumpy.abort('Not a Pydea stream')
+	os.system('{} "{}"'.format(EDITOR, stream.metafile))
+
 @bumpy.default
 def add(*args):
 	'''Add a new Pydea.'''
@@ -129,7 +135,6 @@ def add(*args):
 			print 'Added Pydea ' + now
 		else:
 			bumpy.abort('Pydea contents were empty')
-
 
 if __name__ == '__main__':
 	suppress = [key for key in bumpy.LOCALE if not key.startswith('abort')]
