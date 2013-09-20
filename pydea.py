@@ -71,7 +71,8 @@ class Stream(Meta):
 				self.metafile = full_path
 				continue
 
-			self.ideas.append(Idea(full_path))
+			if filename.endswith('.md'):
+				self.ideas.append(Idea(full_path))
 
 	def __repr__(self):
 		return '# {}\n\n{}'.format(self['title'], '\n'.join(str(x) for x in self.ideas))
