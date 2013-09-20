@@ -14,8 +14,8 @@ $ pydea view # view recorded thoughts
 
 ## Requirements
 
-Pydea requires `bumpy` ([GitHub](https://github.com/scizzorz/bumpy), [PyPI](https://pypi.python.org/pypi/bumpy/0.1.2)), which can be installed via `pip`:
+Pydea requires `bumpy>=0.2.1` ([GitHub](https://github.com/scizzorz/bumpy), [PyPI](https://pypi.python.org/pypi/bumpy/0.2.1)), which can be installed via `pip`:
 
 ```bash
-$ pip install bumpy
+$ pip install -U "bumpy>=0.2.1"
 ```

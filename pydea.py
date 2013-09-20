@@ -88,7 +88,8 @@ def setup():
 	stream = Stream('.pydea')
 
 @bumpy.task
-def init(title = 'Untitled', tags = 'none'):
+@bumpy.args(title = 'Untitled', tags = 'none')
+def init(**kwargs):
 	'''Initialize a Pydea stream.'''
 	if stream.exists: bumpy.abort('Already a Pydea stream')
 
@@ -96,8 +97,8 @@ def init(title = 'Untitled', tags = 'none'):
 		os.makedirs(stream.path)
 
 	with open(os.path.join(stream.path, 'meta.md'), 'w+') as temp:
-		temp.write('* title = {}\n'.format(title))
-		temp.write('* tags = {}\n'.format(tags))
+		temp.write('* title = {}\n'.format(kwargs['title']))
+		temp.write('* tags = {}\n'.format(kwargs['tags']))
 
 	print 'Created empty Pydea stream'
 
