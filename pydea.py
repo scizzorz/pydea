@@ -8,7 +8,11 @@ import time
 
 RE_META = re.compile(r'^\* (\w+)\s*=\s*(.*)$')
 FMT_DATETIME = '%m/%d/%Y %I:%M%p'
-EDITOR = os.getenv('EDITOR', 'nano')
+
+CONFIG = {
+	'path': '.pydea',
+	'editor': os.getenv('EDITOR', 'nano'),
+	}
 
 class Meta:
 	'''An interface for loading a file and processing metadata encoded in a
@@ -67,7 +71,8 @@ class Stream(Meta):
 				self.metafile = full_path
 				continue
 
-			self.ideas.append(Idea(full_path))
+			if filename.endswith('.md'):
+				self.ideas.append(Idea(full_path))
 
 	def __repr__(self):
 		return '# {}\n\n{}'.format(self['title'], '\n'.join(str(x) for x in self.ideas))
@@ -81,14 +86,19 @@ class Idea(Meta):
 	def __repr__(self):
 		return '* {}'.format(self._source)
 
-@bumpy.setup
 @bumpy.private
+@bumpy.setup
 def setup():
 	global stream
-	stream = Stream('.pydea')
+	stream = Stream(CONFIG['path'])
 
-@bumpy.task
-@bumpy.args(title = 'Untitled', tags = 'none')
+@bumpy.private
+@bumpy.options
+def options(**kwargs):
+	for key in kwargs:
+		CONFIG[key] = kwargs[key]
+
+@bumpy.args(title='Untitled', tags='none')
 def init(**kwargs):
 	'''Initialize a Pydea stream.'''
 	if stream.exists: bumpy.abort('Already a Pydea stream')
@@ -113,7 +123,7 @@ def show():
 def edit():
 	'''Edit the Pydea metadata.'''
 	if not stream.exists: bumpy.abort('Not a Pydea stream')
-	os.system('{} "{}"'.format(EDITOR, stream.metafile))
+	os.system('{} "{}"'.format(CONFIG['editor'], stream.metafile))
 
 @bumpy.default
 def add(*args):
@@ -127,9 +137,9 @@ def add(*args):
 	if args: # has arguments
 		contents = '\n\n'.join(args).strip()
 
-	else: # no arguments, open EDITOR
+	else: # no arguments, open $EDITOR
 		desc, name = tempfile.mkstemp(suffix='.md', text = True)
-		os.system('{} "{}"'.format(EDITOR, name))
+		os.system('{} "{}"'.format(CONFIG['editor'], name))
 
 		with open(name) as arg:
 			contents = arg.read().strip()
@@ -144,5 +154,8 @@ def add(*args):
 
 if __name__ == '__main__':
 	suppress = [key for key in bumpy.LOCALE if not key.startswith('abort')]
-	bumpy.config(cli = True, suppress = suppress)
+
+	bumpy.config(cli = True)
+	bumpy.config(suppress = suppress)
+	bumpy.config(long_options=[x+'=' for x in CONFIG])
 	bumpy.main(sys.argv[1:])
