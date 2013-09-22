@@ -1,4 +1,5 @@
 import os
+import time
 from .globals import *
 
 class Meta:
@@ -22,18 +23,32 @@ class Meta:
 
 		self._source = self._source.strip()
 
+	def _process(self):
+		if 'datetime' in self:
+			timestamp = time.strptime(self['datetime'], FMT_DATETIME)
+			self.timestamp = time.mktime(timestamp)
+
+	def __eq(self, other):
+		return self.timestamp == other.timestamp
+	def __ne__(self, other):
+		return self.timestamp != other.timestamp
+	def __le__(self, other):
+		return self.timestamp <= other.timestamp
+	def __lt__(self, other):
+		return self.timestamp < other.timestamp
+	def __ge__(self, other):
+		return self.timestamp >= other.timestamp
+	def __gt__(self, other):
+		return self.timestamp > other.timestamp
+
 	def __len__(self):
 		return len(self._metas)
-
 	def __getitem__(self, key):
 		return self._metas[key]
-
 	def __setitem__(self, key, value):
 		self._metas[key] = value
-
 	def __delitem__(self, key):
 		del self._metas[key]
-
 	def __contains__(self, item):
 		return item in self._metas
 
@@ -55,6 +70,7 @@ class Stream(Meta):
 			if filename == 'meta.md':
 				self.exists = True
 				self._parse(full_path)
+				self._process()
 				self.metafile = full_path
 				continue
 
@@ -69,6 +85,7 @@ class Idea(Meta):
 	def __init__(self, filename):
 		self._name = os.path.splitext(filename)[0]
 		self._parse(filename)
+		self._process()
 
 	def __repr__(self):
 		return '* {}'.format(self._source)
