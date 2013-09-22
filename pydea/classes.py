@@ -69,7 +69,9 @@ class Stream(Meta):
 	exists = False
 	ideas = []
 	def __init__(self, path):
-		self.path = path
+		self.path = os.path.basename(os.path.dirname(path))
+		self.basename = os.path.basename(path)
+
 		if not os.path.exists(path):
 			return
 		if not os.path.isdir(path):
