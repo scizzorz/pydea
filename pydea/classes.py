@@ -72,7 +72,9 @@ class Stream(Meta):
 	def __init__(self, path):
 		self.path = os.path.basename(os.path.dirname(path))
 		self.basename = os.path.basename(path)
+		self.read(path)
 
+	def read(self, path):
 		if not os.path.exists(path):
 			return
 		if not os.path.isdir(path):
@@ -98,9 +100,6 @@ class Stream(Meta):
 		return '# {}\n\n{}'.format(self['title'], self.render())
 
 	def render(self, output = 'text'):
-		if output == 'html':
-			return '<hr style="width:20em; margin: 1em auto; border-width: 0 0 2px 0; border-style: dotted">\n'.join(str(x) for x in self.ideas)
-
 		return '\n'.join('* '+str(x) for x in self.ideas)
 
 class Idea(Meta):
