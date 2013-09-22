@@ -68,6 +68,7 @@ class Stream(Meta):
 	   Pydea files in the stream.'''
 	exists = False
 	ideas = []
+	idea_files = []
 	def __init__(self, path):
 		self.path = os.path.basename(os.path.dirname(path))
 		self.basename = os.path.basename(path)
@@ -87,8 +88,11 @@ class Stream(Meta):
 				self.metafile = full_path
 				continue
 
-			if filename.endswith('.md'):
+			if filename.endswith('.md') and full_path not in self.idea_files:
+				self.idea_files.append(full_path)
 				self.ideas.append(Idea(full_path))
+
+		self.ideas.sort()
 
 	def __repr__(self):
 		return '# {}\n\n{}'.format(self['title'], self.render())
