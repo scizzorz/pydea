@@ -69,10 +69,10 @@ def add(*args):
 		with open(name) as arg:
 			contents = arg.read().strip()
 
-	with open(full_path, 'w+') as temp:
-		temp.write('* datetime = {}\n\n'.format(datetime))
-		if contents:
+	if contents:
+		with open(full_path, 'w+') as temp:
+			temp.write('* datetime = {}\n\n'.format(datetime))
 			temp.write(contents)
 			print 'Added Pydea ' + now
-		else:
-			bumpy.abort('Pydea contents were empty')
+	else:
+		bumpy.abort('Pydea contents were empty')
