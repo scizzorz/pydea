@@ -14,7 +14,18 @@ class Meta:
 				if metamode == 'meta':
 					temp = RE_META.match(line)
 					if temp:
-						self[temp.group(1)] = temp.group(2)
+						val = temp.group(2)
+						if val.lower() == 'true':
+							val = True
+						elif val.lower() == 'false':
+							val = False
+						elif val.isdigit():
+							val = int(val)
+						elif temp.group(1) == 'tags':
+							val = val.split(' ')
+							val.sort()
+
+						self[temp.group(1)] = val
 					else:
 						metamode = 'read'
 
