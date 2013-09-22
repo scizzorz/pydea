@@ -89,7 +89,13 @@ class Stream(Meta):
 				self.ideas.append(Idea(full_path))
 
 	def __repr__(self):
-		return '# {}\n\n{}'.format(self['title'], '\n'.join(str(x) for x in self.ideas))
+		return '# {}\n\n{}'.format(self['title'], self.render())
+
+	def render(self, output = 'text'):
+		if output == 'html':
+			return '<hr style="width:20em; margin: 1em auto; border-width: 0 0 2px 0; border-style: dotted">\n'.join(str(x) for x in self.ideas)
+
+		return '\n'.join('* '+str(x) for x in self.ideas)
 
 class Idea(Meta):
 	'''A container for a single Pydea file and its metadata.'''
@@ -99,4 +105,4 @@ class Idea(Meta):
 		self._process()
 
 	def __repr__(self):
-		return '* {}'.format(self._source)
+		return self._source
