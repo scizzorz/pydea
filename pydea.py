@@ -14,6 +14,11 @@ CONFIG = {
 	'editor': os.getenv('EDITOR', 'nano'),
 	}
 
+CONFIG_SHORTS = {
+	'p': 'path',
+	'e': 'editor',
+	}
+
 class Meta:
 	'''An interface for loading a file and processing metadata encoded in a
 	   Markdown list at the top of the file.'''
@@ -96,7 +101,12 @@ def setup():
 @bumpy.options
 def options(**kwargs):
 	for key in kwargs:
-		CONFIG[key] = kwargs[key]
+		if key in CONFIG_SHORTS:
+			ckey = CONFIG_SHORTS[key]
+		else:
+			ckey = key
+
+		CONFIG[ckey] = kwargs[key]
 
 @bumpy.args(title='Untitled', tags='none')
 def init(**kwargs):
@@ -157,5 +167,6 @@ if __name__ == '__main__':
 
 	bumpy.config(cli = True)
 	bumpy.config(suppress = suppress)
+	bumpy.config(options=''.join([x+':' for x in CONFIG_SHORTS]))
 	bumpy.config(long_options=[x+'=' for x in CONFIG])
 	bumpy.main(sys.argv[1:])
